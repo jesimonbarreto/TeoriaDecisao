@@ -76,14 +76,14 @@ def rest7():
             dist += distance.euclidean(c, p) - rp
     return dist
 
+#coloca o ponto de acesso 'ponto' em um novo lugar aleatorio
 def novoLocalPontoAcesso(ponto):
     novo_x = randint(limits_ap_x[0], limits_ap_x[1])
     novo_y = randint(limits_ap_y[0], limits_ap_y[1])
     AP[ponto] = np.array([novo_x, novo_y])
 
+#Coloca para um cliente ser atendido por outro ponto de acesso
 def novoPontoAcessoClient():
-    #selecionar cliente
-    #tirar cliente do 
     ponto = False
     while(not ponto):
         p = np.random.choice(ap.shape[0], size=1, replace=False)
@@ -93,10 +93,11 @@ def novoPontoAcessoClient():
     acp[cliente][pontovelho] = 0
     acp[cliente][p] = 1
     
-
+#Altera o estado do ponto de acesso n
 def usoPontoAcesso(n):
     ap[n] = int(not ap[n])
 
+#Muda o estado de todos os pontos de acesso
 def usoPontoAcesso():
     indices_one = ap == 1
     indices_zero = ap == 0
@@ -158,7 +159,7 @@ def BVNS(k_max = 4, max_int = 5000):
     while (nfe<max_int):
 
         k = 1
-        while(k<k_max):
+        while(k<=k_max):
             # Gera uma solução na k-esima vizinhança de x
             x_line = shake(x,k) #shaking
             x_line_line = bestImprovement(x_line)
