@@ -14,6 +14,7 @@ n_max = 100 #numero maximo de PAs disponiveis
 ap = [] # vetor len == numero de PAs e binario para indicar se a PA é usada ou nao
 acp = [[]]#Matriz de numero de clientes por numero de PAs indica se a PA é utilizada pelo cliente
 
+#Code 
 
 #função que será otimizada
 def f1():
