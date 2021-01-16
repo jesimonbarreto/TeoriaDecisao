@@ -82,6 +82,16 @@ def novoLocalPontoAcesso(ponto):
     AP[ponto] = np.array([novo_x, novo_y])
 
 def novoPontoAcessoClient():
+    #selecionar cliente
+    #tirar cliente do 
+    ponto = False
+    while(not ponto):
+        p = np.random.choice(ap.shape[0], size=1, replace=False)
+        ponto = ap[p]
+    cliente = np.random.choice(acp.shape[0], size=1, replace=False)
+    pontovelho = acp[cliente] == 1
+    acp[cliente][pontovelho] = 0
+    acp[cliente][p] = 1
     
 
 def usoPontoAcesso(n):
@@ -113,8 +123,7 @@ def shake(x, k):
             ponto = ap[p]
         novoLocalPontoAcesso(p)
     elif k == 2:
-        
-        novoPontoAcessoClient(pontovelho, cliente, pontonovo)
+        novoPontoAcessoClient()
     elif k == 3:
         p = np.random.choice(ap.shape[0], size=1, replace=False)
         usoPontoAcesso(p)
