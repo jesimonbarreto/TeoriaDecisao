@@ -2,43 +2,33 @@ import numpy as np
 import os,sys,math, copy
 from scipy.spatial import distance
 from random import seed,random,randint
+import pandas as pd
+import matplotlib.pyplot as plt
 seed(1234)
 np.random.seed(1234)
-
-limits_ap_x = (0,100) #grid x 0 - 100 valores possiveis para um ponto de acesso
-limits_ap_y = (0,100) #grid y 0 - 100
-C = [] #conjunto de clientes (x,y)
-cc = [] #consumo do cliente i
-P = [] #conjunto de pontos(x,y) de possiveis locais para AP
-cp = 150 #capacidade do ponto de acesso p
-rp = 85 # limite do sinal do ponto de acesso
-N = 0.95 # taxa de cobertura dos clientes
-n_max = 100 #numero maximo de PAs disponiveis
-ap = [] # vetor len == numero de PAs e binario para indicar se a PA é usada ou nao
-acp = [[]]#Matriz de numero de clientes por numero de PAs indica se a PA é utilizada pelo cliente
 
 #função que será otimizada
 def f1():
     pass
 
-def f2():
+def f2(pontos_acesso):
     #Calcula o valor da função objetivo f2
     f2_value = 0
     for id_c,c in enumerate(C):
-        for id_p,p in enumerate(P):
+        for id_p,p in enumerate(pontos_acesso):
             f2_value += distance.euclidean(c, p) * acp[id_c][id_p]
     
     #valor de f2 penalizada pelos valores das restrições
-    f2_value += rest3() + rest4() + rest5() + rest6() + rest7()
+    f2_value += rest3(pontos_acesso) + rest4(pontos_acesso) + rest5(pontos_acesso) + rest6(pontos_acesso) + rest7(pontos_acesso)
 
     return f2_penal
 
 
 #atender N % dos clientes
-def rest3():
+def rest3(pontos_acesso):
     total_clients_att = 0
     for id_c,c in enumerate(C):
-        for id_p,p in enumerate(P):
+        for id_p,p in enumerate(pontos_acesso):
             total_clients_att+= acp[id_c][id_p]
     
     penal = N * len(C) - total_clients_att
@@ -46,7 +36,7 @@ def rest3():
     return penal
 
 #Garante nao estourar a capacidade do ponto de acesso
-def rest4():
+def rest4(pontos_acesso):
     pontos_cap = 0 
     for id_c,c in enumerate(C):
         pontos_cap += acp[id_c] * cc
@@ -57,30 +47,31 @@ def rest4():
 #garante que cada cliente estará conectado a 1 AP
 def rest5():
     pert = [] 
-    for id_p,p in enumerate(P):
+    for id_p,p in enumerate(pontos_acesso):
         ac = np.sum(acp[:,id_p])
         pert.append(ac-1)
     penal = np.sum(pert)
     return penal
 
 #garante que nao exceda o numero de pontos de acesso
-def rest6():
+def rest6(pontos_acesso):
     penal = np.sum(ap) - n_max
     return penal
 
 #Garante que a distancia nao exceda a distancia max de um ponto de acesso
-def rest7():
+def rest7(pontos_acesso):
     dist = 0
     for id_c,c in enumerate(C):
-        for id_p,p in enumerate(P):
+        for id_p,p in enumerate(pontos_acesso):
             dist += distance.euclidean(c, p) - rp
     return dist
 
 #coloca o ponto de acesso 'ponto' em um novo lugar aleatorio
-def novoLocalPontoAcesso(ponto):
+def novoLocalPontoAcesso(pontos_acesso, ponto):
     novo_x = randint(limits_ap_x[0], limits_ap_x[1])
     novo_y = randint(limits_ap_y[0], limits_ap_y[1])
-    AP[ponto] = np.array([novo_x, novo_y])
+    pontos_acesso[ponto] = np.array([novo_x, novo_y])
+    return pontos_acesso
 
 #Coloca para um cliente ser atendido por outro ponto de acesso
 def novoPontoAcessoClient():
@@ -110,7 +101,7 @@ def initialSol():
     pass
 
 #pertubação do domínio de solução
-def shake(x, k):
+def shake(pontos_acesso, k):
     #Estruturas de vizinhaças
     #1 - Coloca o ponto de acesso em um novo ponto aleatorio 
     #2 - Trocar um cliente para outro ponto de acesso aleatorio 
@@ -122,7 +113,7 @@ def shake(x, k):
         while(not ponto):
             p = np.random.choice(ap.shape[0], size=1, replace=False)
             ponto = ap[p]
-        novoLocalPontoAcesso(p)
+        pontos_acesso = novoLocalPontoAcesso(pontos_acesso, p)
     elif k == 2:
         novoPontoAcessoClient()
     elif k == 3:
@@ -146,7 +137,7 @@ def bestImprovement(x_line):
 
 #k_max Número de estruturas de vizinhaças definidas
 #max_int numero maximo de tentativas de novos valores
-def BVNS(k_max = 4, max_int = 5000):
+def BVNS(x, k_max, max_int = 5000):
     nfe = 0
     x_save = []
     y_save = []
@@ -176,8 +167,47 @@ def BVNS(k_max = 4, max_int = 5000):
 
 
 if __name__ == "__main__":
-    pass
-    #upar o arquivo
-    #carregar os valores 
-    #colocar no formato
-    #chamar a função pra otimizar as duas funções
+    
+    path_file = 'clientes.csv'
+    df = pd.read_csv(path_file)
+    value = df.values
+    #Inicializa variáveis
+    C = value[:,:2] #conjunto de clientes (x,y)
+    cc = value[:,2:] #consumo do cliente i
+    #setar valores dos grides como (x,y) ou como x e y separados
+    P = [] #conjunto de pontos(x,y) de possiveis locais para AP
+    P.append([np.min(C[:,0]),np.max(C[:,0])])
+    P.append([np.min(C[:,1]),np.max(C[:,1])])
+    cp = 150 #capacidade do ponto de acesso p
+    rp = 85 # limite do sinal do ponto de acesso
+    N = 0.95 # taxa de cobertura dos clientes
+    n_max = 100 #numero maximo de PAs disponiveis
+    ap = [0] * n_max # vetor len == numero de PAs e binario para indicar se a PA é usada ou nao
+    acp = np.zeros((int(C.shape[0]), n_max))#Matriz de numero de clientes por numero de PAs indica se a PA é utilizada pelo cliente
+    #gerar n_max pontos de 
+    pontos_acesso = np.zeros((n_max,2))
+    x = {
+        'pontos': pontos_acesso,
+        'C': C,
+        'cc': cc,
+        'P': P,
+        'cp': cp,
+        'rp': rp,
+        'N': N,
+        'n_max': n_max,
+        'ap': ap,
+        'acp': acp,
+    }
+
+    sol, hist_x, hist_y = BVNS(x, k_max = 4, max_int = 5000)
+
+    x_sol = x['pontos']
+    
+    #plt.plot(hist_y)
+    #plt.ylabel('Histórico da otimização valor da função')
+    #plt.show()
+    plt.plot(C[:,0], C[:,1], 'bs')
+    plt.plot(x_sol[:,0], x_sol[:,1], 'ro')
+    plt.show()
+    
+
