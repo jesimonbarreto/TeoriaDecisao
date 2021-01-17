@@ -4,6 +4,7 @@ from scipy.spatial import distance
 from random import seed,random,randint
 import pandas as pd
 import matplotlib.pyplot as plt
+
 seed(1234)
 np.random.seed(1234)
 
@@ -109,8 +110,8 @@ def rest7(dados):
 
 #coloca o ponto de acesso 'ponto' em um novo lugar aleatorio
 def novoLocalPontoAcesso(dados):
-    ap = dados['ap']
-    acp = dados['acp']
+    ap = dados['ap'].copy()
+    acp = dados['acp'].copy()
 
     #ponto velho
     ponto = False
@@ -124,8 +125,8 @@ def novoLocalPontoAcesso(dados):
         ponto = ap[pn]
     
     #passando todos os clientes que são atendidos pelo ponto de acesso para o novo ponto de acesso
-    nad = acp[:,pn].copy()
-    acp[:,pn] = acp[:,pv].copy()
+    nad = acp[:,pn]
+    acp[:,pn] = acp[:,pv]
     acp[:,pv] = nad
     #trocando o estados de utilização dos pontos de acesso
     ap[pv] = 0
@@ -138,9 +139,8 @@ def novoLocalPontoAcesso(dados):
 
 #Coloca para um cliente ser atendido por outro ponto de acesso ativo
 def novoPontoAcessoClient(dados):
-    ap = dados['ap']
-    acp = dados['acp']
-    P = dados['P']
+    ap = dados['ap'].copy()
+    acp = dados['acp'].copy()
 
     #soteia um cliente
     cliente = np.random.choice(acp.shape[0], size=1, replace=False)
@@ -160,12 +160,12 @@ def novoPontoAcessoClient(dados):
     
     return dados
     
-#Altera o estado do ponto de acesso n
+#Altera o estado do ponto de acesso 
 def usoUmPontoAcesso(dados):
-    ap = dados['ap']
-    acp = dados['acp']
-    P = dados['P']
-    C = dados['C']
+    ap = dados['ap'].copy()
+    acp = dados['acp'].copy()
+    P = dados['P'].copy()
+    C = dados['C'].copy()
 
     p = np.random.choice(ap.shape[0], size=1, replace=False)
     #se for ponto ativo passa os clientes para outro ponto de acesso
@@ -187,31 +187,32 @@ def usoUmPontoAcesso(dados):
     return dados
 
 
-#Muda o estado de todos os pontos de acesso redistribui aleatoriamente os clientes
+#Redistribui aleatoriamente os clientes
 def usoPontoAcesso(dados):
-    ap = dados['ap']
-    acp = dados['acp']
-    P = dados['P']
-    C = dados['C']
+    ap = dados['ap'].copy()
+    acp = dados['acp'].copy()
+    P = dados['P'].copy()
+    C = dados['C'].copy()
 
     pas_ligados = np.where(ap == 1)[0]
-    pas_deslig = np.where(ap==0)[0]
-    #passar em cada um positivo redistribuindo os clientes
-    for io in pas_ligados:
-        #para cada cliente redistribui os clientes para cada um que será ativo
-        clientes = acp[:,io]
-        for id_, clt in enumerate(clientes):
-            #sorteia um novo ponto de acesso que sera ativado
-            if clt:
-                p = np.random.choice(pas_deslig, size=1, replace=False)
-                acp[id_,p] = 1
+    #pas_deslig = np.where(ap==0)[0]
+    #selecionar um ligado para distribuir entre outros
+    io = np.random.choice(pas_ligados, size=1, replace=False)
+    #para cada cliente redistribui os clientes para cada um que será ativo
+    clientes = acp[:,io]
+    for id_, clt in enumerate(clientes):
+        #sorteia um novo ponto de acesso que sera ativado
+        if clt:
+            p = np.random.choice(pas_ligados, size=1, replace=False)
+            while(p!=io):
+                p = np.random.choice(pas_ligados, size=1, replace=False)    
+            acp[id_,p] = 1
 
 
-        for i in range(len(acp[:,io])):
-            acp[i,io] = 0
+    for i in range(len(acp[:,io])):
+        acp[i,io] = 0
     #troca os estados
-    ap[pas_ligados] = 0
-    ap[pas_deslig] = 1
+    ap[io] = 0
 
 
     dados['ap'] = ap
@@ -228,13 +229,21 @@ def shake(dados, k):
     #4 - Altera o estado de uso de todos os pontos de acesso se tiver ativo e tiver cliente passa para outro ponto de acesso ativo
 
     if k == 1:
-        dados = novoLocalPontoAcesso(dados)
+        n_change = 10
+        for n in range(n_change):
+            dados = novoLocalPontoAcesso(copy.copy(dados))
     elif k == 2:
-        dados = novoPontoAcessoClient(dados)
+        n_change = 10
+        for n in range(n_change):
+            dados = novoPontoAcessoClient(copy.copy(dados))
     elif k == 3:
-        dados = usoUmPontoAcesso(dados)
+        n_change = 10
+        for n in range(n_change):
+            dados = usoUmPontoAcesso(copy.copy(dados))
     else:
-        dados = usoPontoAcesso(dados)
+        n_change = 10
+        for n in range(n_change):
+            dados = usoPontoAcesso(copy.copy(dados))
     
     return dados
 
@@ -281,15 +290,15 @@ def initialSol(dados):
     return dados
 
 
-def neighborhoodChange(x, x_line, k, f):
+def neighborhoodChange(x_, x_line_, k, f):
     
-    if f(x_line) < f(x):
-        x = x_line
+    if f(x_line_) < f(x_):
+        x_ = x_line_
         k = 1
     else:
         k  += 1
     
-    return x, k
+    return x_, k
 
 def bestImprovement(x_line):
     pass
@@ -302,34 +311,35 @@ def BVNS(dados, f, k_max, max_int = 5000, plot = False):
     y_save = []
     
     # Solução inicial
-    dados = initialSol(dados)
+    dados = initialSol(copy.copy(dados))
 
     #x_save.append(x)
-    y = f(x)
+    y = f(dados)
     y_save.append(y)
     
     while(nfe<max_int):
         print('Interação: {}'.format(nfe))
-        print('Valor f(x): {}'.format(nfe))
+        print('Valor f(x): {}'.format(y))
         if plot:
             plot_value(dados)
 
         k = 1
         while(k<=k_max):
             # Gera uma solução na k-esima vizinhança de x
-            dados_line = shake(dados,k) #shaking
+            dados_line = shake(copy.copy(dados),k) #shaking
             #x_line_line = bestImprovement(x_line)
             #update x
-            dados, k = neighborhoodChange(dados, dados_line, k, f)
+            dados, k = neighborhoodChange(copy.copy(dados), copy.copy(dados_line), k, f)
             #save 
             #x_save.append(x)
-            y = f(x)
-            y_save.append(f(x))
-            nfe +=1
+            y = f(dados)
+            y_save.append(f(dados))
+        
+        nfe +=1
 
     dados_sol = dados
 
-    return x_sol#, x_save, y_save
+    return dados_sol#, x_save, y_save
 
 
 if __name__ == "__main__":
@@ -378,4 +388,3 @@ if __name__ == "__main__":
 
     #plot solution
     plot_value(sol)
-    
