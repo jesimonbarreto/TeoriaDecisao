@@ -300,9 +300,52 @@ def neighborhoodChange(x_, x_line_, k, f):
     
     return x_, k
 
-def bestImprovement(x_line):
-    pass
+def bestImprovement(dados, f):
+    
+    new_dados_1 = copy.copy(dados)
+    new_dados_2 = copy.copy(dados)
 
+    # seleciona index de ap válido
+    ponto = False
+    while not ponto:
+        pv = np.random.choice(dados['ap'].shape[0], size=1, replace=False) # pv é o index de um ponto ativo
+        ponto = dados['ap'][pv]
+
+    if pv == 0:
+        pv+=1
+    elif pv>=int(dados['ap'].shape[0])-2:
+        pv-=1
+
+    for i in range(len(new_dados_1['acp'][:, pv])):
+        current_client = new_dados_1['acp'][i, pv]
+        new_dados_1['acp'][i, pv] = new_dados_1['acp'][i, pv - 1]
+        new_dados_1['acp'][i, pv - 1] = current_client
+
+        current_client = new_dados_2['acp'][i, pv]
+        new_dados_2['acp'][i, pv] = new_dados_2['acp'][i, pv + 1]
+        new_dados_2['acp'][i, pv + 1] = current_client
+
+    cpy = new_dados_1['ap'][pv] 
+    new_dados_1['ap'][pv-1] = new_dados_1['ap'][pv]
+    new_dados_1['ap'][pv] = cpy
+
+ 
+    cpy = new_dados_2['ap'][pv] 
+    new_dados_2['ap'][pv+1] = new_dados_2['ap'][pv]
+    new_dados_2['ap'][pv] = cpy
+
+    f_1 = float(f(dados))
+    f_2 = float(f(new_dados_1))
+    f_3 = float(f(new_dados_2))
+
+    if f_1 > f_2 and f_1 > f_3:
+        return dados
+    elif f_2 > f_1 and f_2> f_3:
+        return new_dados_1
+    else:
+        return new_dados_2
+
+    
 #k_max Número de estruturas de vizinhaças definidas
 #max_int numero maximo de tentativas de novos valores
 def BVNS(dados, f, k_max, max_int = 5000, plot = False):
@@ -327,9 +370,9 @@ def BVNS(dados, f, k_max, max_int = 5000, plot = False):
         while(k<=k_max):
             # Gera uma solução na k-esima vizinhança de x
             dados_line = shake(copy.copy(dados),k) #shaking
-            #x_line_line = bestImprovement(x_line)
+            dados_line_line = bestImprovement(copy.copy(dados_line), f)
             #update x
-            dados, k = neighborhoodChange(copy.copy(dados), copy.copy(dados_line), k, f)
+            dados, k = neighborhoodChange(copy.copy(dados), copy.copy(dados_line_line), k, f)
             #save 
             #x_save.append(x)
             y = f(dados)
