@@ -1,80 +1,100 @@
 import numpy as np
-import os,sys,math, copy
+import os,sys,math,copy,random
+from scipy.spatial import distance
+seed(1234)
+np.random.seed(1234)
 
 
-#função que será otimizada
-def f():
-    pass
+def f1():
+    # Calcula o valor da função objetivo f1
+    f1 = sum(ap)
 
-#retorna um valor inicial de x aleatório e factível
-def initialSol():
-    pass
+    # valor de f1 penalizada pelos valores das restrições
+    f1_penal = f1 + 10 * (rest3() + rest4() + rest5() + rest6() + rest7())
 
-#pertubação do domínio de solução
-def shake(x, k):
-    x_per = copy.copy(x)
-    n = len(x)
-    #permuta a posição
-    r = np.random.permutation(n)
+    return f1_penal
 
-    if k == 1:      # exchange two random positions
-        x_per[r[1]] = x[r[2]]
-        x_per[r[2]] = x[r[1]]
-    elif k == 2:    #exchage three random positions
-        x_per[r[1]] = x[r[2]]
-        x_per[r[2]] = x[r[3]]
-        x_per[r[3]] = x[r[1]]    
-    elif k == 3:     # shift positions
-        if r[1] < r[2]:
-            r1, r2 = r[1], r[2]
-        else:
-            r1, r2 = r[2], r[1]
 
-        x_per = [x_per[1:r1-1], x_per[r1+1:r2], x_per[r1], x_per[r2+1:]]
+def rest3():
+    penal = N * len(C) - acp.sum()
+    penal = max(0, penal) ** 2
+    return penal
 
-    return x_pert   
 
-def neighborhoodChange(x, x_line, k, f):
-    
-    if f(x_line) < f(x):
-        x  = x_line
-        k = 1
-    else:
-        k  += 1
-    
-    return x, k
-    
+# Garante nao estourar a capacidade do ponto de acesso
+def rest4():
+    pontos_cap = np.matmul(acp.transpose(), cc) - cp
 
-#k_max Número de estruturas de vizinhaças definidas
-#max_int numero maximo de tentativas de novos valores
-def VNS(k_max = 3, max_int = 5000):
-    
-    nfe = 0
-    x_save = []
-    y_save = []
-    
-    # Solução inicial
-    x = initialSol()
-    x_save.append(x)
-    y_save.append(f(x))
-    
-    while (nfe<=max_int):
-        
-        k = 1
-        while(k<k_max):
-            # Gera uma solu��o na k-�sima vizinhan�a de x
-            x_line = shake(x,k)
-            #update x
-            x, k = neighborhoodChange(x, x_line, k, f)
-            #save 
-            x_save.append(x)
-            y_save.append(f(x))
-            nfe +=1
-        
-    x_sol = x
+    # soma somente os pontos que nao obedecem a restricao
+    penal = 0
+    for i in pontos_cap:
+        if (i > 0):
+            penal += i
 
-    return x_sol, x_save, y_save
+    return penal
 
+
+# garante que cada cliente estará conectado a no maximo 1 PA
+def rest5():
+    pert = acp.sum(axis=1) - 1
+
+    penal = 0
+    for i in pert:
+        if (i > 0):
+            penal += i
+    return penal
+
+
+# garante que nao exceda o numero de pontos de acesso
+def rest6():
+    penal = np.sum(ap) - n_max
+    penal = max(0, penal) ** 2
+
+    return penal
+
+
+# Garante que a distancia nao exceda a distancia max de um ponto de acesso
+def rest7():
+    dist = acp * d - rp
+    penal = 0
+    for i in dist:
+        for j in i:
+            if (j > 0):
+                penal += j
+    return penal
 
 if __name__ == "__main__":
-    pass
+    clientes = np.loadtxt(open("clientes.csv", "r"), delimiter=",")
+
+    C = clientes[:, 0:2]  # posicao clientes
+    cc = clientes[:, 2]  # consumo clientes
+    N = 0.95  # taxa de cobertura
+    n_max = 100  # numero maximo de PAs
+    cp = 150  # capacidade do PA
+    rp = 85  # alcance do sinal
+    P = np.zeros((25921, 2))  # PAs
+    d = np.zeros((len(C), len(P)))   # distancias
+    acp = np.zeros((len(C), len(P)))   # clientes atendidos
+
+    # Calcula as coordenadas dos possíveis PAs
+    i = 0
+    for x in range(0, 805, 5):
+        for y in range(0, 805, 5):
+            P[i, 0] = x
+            P[i, 1] = y
+            i = i + 1
+
+    # calcula distancia entre cada cliente a cada ponto de acesso
+    for id_c, c in enumerate(C):
+        for id_p, p in enumerate(P):
+            d[id_c, id_p] = distance.euclidean(c, p)
+
+    # gera solucao inicial - PAs ativos
+    ap = np.zeros(len(P))
+    index = np.random.randint(0, ap.size, nMax)
+    ap[index] = 1
+
+    # gera solucao inicial - clientes atendidos
+    for i in range(0, len(acp)):
+        j = random.choice(index)
+        acp[i, j] = 1
