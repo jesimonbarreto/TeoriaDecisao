@@ -9,13 +9,16 @@ seed(1234)
 np.random.seed(1234)
 
 
-def plot_value(dados):
+def plot_value(dados, y):
 
     P = dados['P']
     pos = dados['ap'] == 1
     C = dados['C']
     x_sol = P[pos]
-    
+    plt.ylabel('Erro')
+    plt.xlabel('Interações')
+    plt.plot(y)
+    plt.show()
     plt.plot(C[:,0], C[:,1], 'bs')
     plt.plot(x_sol[:,0], x_sol[:,1], 'ro')
     plt.show()
@@ -36,12 +39,13 @@ def f2(dados):
     acp = dados['acp']
     rp = dados['rp']
     d = dados['d']
+    P = dados['P']
     
     #Calcula o valor da função objetivo f2
     f2_value = 0
     for id_c,c in enumerate(C):
-        for id_p,p in enumerate(pontos_acesso):
-            f2_value += d[c, p] * acp[id_c][id_p]
+        for id_p,p in enumerate(P):
+            f2_value += d[id_c, id_p] * acp[id_c][id_p]
     
     #valor de f2 penalizada pelos valores das restrições
     f2_penal = f2_value + 10 * (rest3(dados) + rest4(dados) + rest5(dados) + rest6(dados) + rest7(dados))
@@ -301,7 +305,7 @@ def neighborhoodChange(x_, x_line_, k, f):
     return x_, k
 
 def bestImprovement(dados, f):
-    
+
     new_dados_1 = copy.copy(dados)
     new_dados_2 = copy.copy(dados)
 
@@ -376,13 +380,13 @@ def BVNS(dados, f, k_max, max_int = 5000, plot = False):
             #save 
             #x_save.append(x)
             y = f(dados)
-            y_save.append(f(dados))
+            y_save.append(y)
         
         nfe +=1
 
     dados_sol = dados
 
-    return dados_sol#, x_save, y_save
+    return dados_sol, y_save
 
 
 if __name__ == "__main__":
@@ -392,8 +396,8 @@ if __name__ == "__main__":
     value = df.values
     #Inicializa variáveis
     #(0,805)
-    sizex = (0,200)
-    sizey = (0,200)
+    sizex = (0,800)
+    sizey = (0,800)
     #5x5
     grid = (20,20)
     n_P = int((sizex[1]*sizey[1])/ (grid[0]*grid[1]))
@@ -427,7 +431,9 @@ if __name__ == "__main__":
     }
 
     #Otimizando
-    sol = BVNS(x, f1, k_max = 4, max_int = 5000, plot = True)
-
+    sol, y = BVNS(x, f2, k_max = 4, max_int = 20, plot = False)
     #plot solution
-    plot_value(sol)
+    plot_value(sol, y)
+    #print solution
+    print('Resultado:')
+    print('Numero de Pontos de acesso: {}'.format(np.sum(sol['ap'])))
