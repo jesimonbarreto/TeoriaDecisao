@@ -294,74 +294,28 @@ def initialSol(dados):
     return dados
 
 
-def neighborhoodChange(x_, x_line_, k, f):
-    
-    if f(x_line_) < f(x_):
+def neighborhoodChange(x_, x_line_, k, w):
+    y_ = pw(x_,w)
+    y_line_ = pw(x_line_,w)
+
+    if pw(x_line_,w) < pw(x_,w):
         x_ = x_line_
+        y_ = y_line_
         k = 1
     else:
         k  += 1
     
-    return x_, k
+    return x_, k, y_
 
-def bestImprovement(dados, f):
-
-    new_dados_1 = copy.copy(dados)
-    new_dados_2 = copy.copy(dados)
-
-    # seleciona index de ap válido
-    ponto = False
-    while not ponto:
-        pv = np.random.choice(dados['ap'].shape[0], size=1, replace=False) # pv é o index de um ponto ativo
-        ponto = dados['ap'][pv]
-
-    if pv == 0:
-        pv+=1
-    elif pv>=int(dados['ap'].shape[0])-2:
-        pv-=1
-
-    for i in range(len(new_dados_1['acp'][:, pv])):
-        current_client = new_dados_1['acp'][i, pv]
-        new_dados_1['acp'][i, pv] = new_dados_1['acp'][i, pv - 1]
-        new_dados_1['acp'][i, pv - 1] = current_client
-
-        current_client = new_dados_2['acp'][i, pv]
-        new_dados_2['acp'][i, pv] = new_dados_2['acp'][i, pv + 1]
-        new_dados_2['acp'][i, pv + 1] = current_client
-
-    cpy = new_dados_1['ap'][pv] 
-    new_dados_1['ap'][pv-1] = new_dados_1['ap'][pv]
-    new_dados_1['ap'][pv] = cpy
-
- 
-    cpy = new_dados_2['ap'][pv] 
-    new_dados_2['ap'][pv+1] = new_dados_2['ap'][pv]
-    new_dados_2['ap'][pv] = cpy
-
-    f_1 = float(f(dados))
-    f_2 = float(f(new_dados_1))
-    f_3 = float(f(new_dados_2))
-
-    if f_1 > f_2 and f_1 > f_3:
-        return dados
-    elif f_2 > f_1 and f_2> f_3:
-        return new_dados_1
-    else:
-        return new_dados_2
-
-    
 #k_max Número de estruturas de vizinhaças definidas
 #max_int numero maximo de tentativas de novos valores
-def BVNS(dados, f, k_max, max_int = 5000, plot = False):
+def VNS(dados, w, k_max, max_int = 5000, plot = False):
     nfe = 0
     x_save = []
     y_save = []
-    
-    # Solução inicial
-    dados = initialSol(copy.copy(dados))
 
     #x_save.append(x)
-    y = f(dados)
+    y = pw(dados, w)
     y_save.append(y)
     
     while(nfe<max_int):
@@ -374,12 +328,10 @@ def BVNS(dados, f, k_max, max_int = 5000, plot = False):
         while(k<=k_max):
             # Gera uma solução na k-esima vizinhança de x
             dados_line = shake(copy.copy(dados),k) #shaking
-            dados_line_line = bestImprovement(copy.copy(dados_line), f)
             #update x
-            dados, k = neighborhoodChange(copy.copy(dados), copy.copy(dados_line_line), k, f)
+            dados, k, y = neighborhoodChange(copy.copy(dados), copy.copy(dados_line), k, w)
             #save 
             #x_save.append(x)
-            y = f(dados)
             y_save.append(y)
         
         nfe +=1
@@ -388,6 +340,22 @@ def BVNS(dados, f, k_max, max_int = 5000, plot = False):
 
     return dados_sol, y_save
 
+def pw(dados,w):
+    fval=np.array([[f1(dados)], [f2(dados)]])
+    return np.matmul(w,fval)
+
+def problemaPw(dados, n_sol, k_max, max_VNS_it):
+    dados = initialSol(copy.copy(dados))
+    fval = np.zeros((n_sol, 2))
+    
+    for i in range(0,n_sol):
+        w = np.random.rand(1,2)
+        w = w/(w.sum())
+        dados, y = VNS(dados, w, k_max, max_VNS_it, plot = False)
+        fval[i,0]=f1(dados)
+        fval[i,1]=f2(dados)
+        
+        return fval, dados, y
 
 if __name__ == "__main__":
     
@@ -431,9 +399,13 @@ if __name__ == "__main__":
     }
 
     #Otimizando
-    sol, y = BVNS(x, f2, k_max = 4, max_int = 20, plot = False)
+    fval, dados, y = problemaPw(x, n_sol = 10, k_max = 4, max_VNS_it = 100)
     #plot solution
-    plot_value(sol, y)
+    #plot_value(dados, y)
+    
+    plt.plot(fval[:,0], x_sol[:,1])
+    plt.show()
+    
     #print solution
     print('Resultado:')
     print('Numero de Pontos de acesso: {}'.format(np.sum(sol['ap'])))
