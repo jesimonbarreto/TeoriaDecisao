@@ -355,7 +355,7 @@ def problemaPw(dados, n_sol, k_max, max_VNS_it):
         fval[i,0]=f1(dados)
         fval[i,1]=f2(dados)
         
-        return fval, dados, y
+    return fval, dados, y
 
 if __name__ == "__main__":
     
