@@ -52,6 +52,47 @@ def f2(dados):
 
     return f2_penal
 
+
+def f1_e_restrito(dados, f):
+    ap = dados['ap']
+
+    # Calcula o valor da função objetivo f1
+    f1 = sum(ap)
+
+    # valor de f1 penalizada pelos valores das restrições
+    f1_penal = f1 + 10 * (rest3(dados) + rest4(dados) + rest5(dados) + rest6(dados) + rest7(dados) + rest_e_restrito_f2(dados, f))
+
+    return f1_penal
+
+
+def f2_e_restrito(dados):
+    acp = dados['acp']
+    rp = dados['rp']
+    d = dados['d']
+    P = dados['P']
+
+    # Calcula o valor da função objetivo f2
+    f2_value = 0
+    for id_c, c in enumerate(C):
+        for id_p, p in enumerate(P):
+            f2_value += d[id_c, id_p] * acp[id_c][id_p]
+
+    # valor de f2 penalizada pelos valores das restrições
+    f2_penal = f2_value + 10 * (rest3(dados) + rest4(dados) + rest5(dados) + rest6(dados) + rest7(dados) + rest_e_restrito_f1(dados, f1))
+
+    return f2_penal
+
+
+# função objetivo 2 convertida para restrição
+# epsilon => média dos resultados max e min obtidos para f2 no tc02
+# epsilon = mean(f2(.)_max, f2(.)_min) = (1052924.9992 + 969495.2694) / 2
+def rest_e_restrito_f1(dados, e=1011210.1343):
+    return max(0, f1(dados) - e) ** 2
+
+def rest_e_restrito_f2(dados, e=1011210.1343):
+    return max(0, f2(dados) - e) ** 2
+
+
 def rest3(dados):
     N = dados['N']
     C = dados['C']
@@ -111,6 +152,7 @@ def rest7(dados):
             if (j > 0):
                 penal += j
     return penal
+
 
 #coloca o ponto de acesso 'ponto' em um novo lugar aleatorio
 def novoLocalPontoAcesso(dados):
@@ -300,7 +342,7 @@ def neighborhoodChange(x_, x_line_, k, f):
         x_ = x_line_
         k = 1
     else:
-        k  += 1
+        k += 1
     
     return x_, k
 
@@ -352,7 +394,7 @@ def bestImprovement(dados, f):
     
 #k_max Número de estruturas de vizinhaças definidas
 #max_int numero maximo de tentativas de novos valores
-def BVNS(dados, f, k_max, max_int = 5000, plot = False):
+def BVNS(dados, f, k_max, e, max_int = 5000, plot = False):
     nfe = 0
     x_save = []
     y_save = []
@@ -431,7 +473,7 @@ if __name__ == "__main__":
     }
 
     #Otimizando
-    sol, y = BVNS(x, f2, k_max = 4, max_int = 20, plot = False)
+    sol, y = BVNS(x, f2, k_max = 4, e=66666 , max_int = 20, plot = False)
     #plot solution
     plot_value(sol, y)
     #print solution
