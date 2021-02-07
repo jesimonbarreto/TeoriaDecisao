@@ -1,5 +1,5 @@
 import numpy as np
-import os,sys,math, copy
+import os, sys, math, copy, csv, time, pickle
 from scipy.spatial import distance
 from random import seed,random,randint
 import pandas as pd
@@ -294,104 +294,106 @@ def initialSol(dados):
     return dados
 
 
-def neighborhoodChange(x_, x_line_, k, f):
-    
-    if f(x_line_) < f(x_):
+def neighborhoodChange(x_, x_line_, k, w):
+    y_ = pw(x_,w)
+    y_line_ = pw(x_line_,w)
+
+    if pw(x_line_,w) < pw(x_,w):
         x_ = x_line_
+        y_ = y_line_
         k = 1
     else:
         k  += 1
     
-    return x_, k
+    return x_, k, y_
 
-def bestImprovement(dados, f):
-
-    new_dados_1 = copy.copy(dados)
-    new_dados_2 = copy.copy(dados)
-
-    # seleciona index de ap válido
-    ponto = False
-    while not ponto:
-        pv = np.random.choice(dados['ap'].shape[0], size=1, replace=False) # pv é o index de um ponto ativo
-        ponto = dados['ap'][pv]
-
-    if pv == 0:
-        pv+=1
-    elif pv>=int(dados['ap'].shape[0])-2:
-        pv-=1
-
-    for i in range(len(new_dados_1['acp'][:, pv])):
-        current_client = new_dados_1['acp'][i, pv]
-        new_dados_1['acp'][i, pv] = new_dados_1['acp'][i, pv - 1]
-        new_dados_1['acp'][i, pv - 1] = current_client
-
-        current_client = new_dados_2['acp'][i, pv]
-        new_dados_2['acp'][i, pv] = new_dados_2['acp'][i, pv + 1]
-        new_dados_2['acp'][i, pv + 1] = current_client
-
-    cpy = new_dados_1['ap'][pv] 
-    new_dados_1['ap'][pv-1] = new_dados_1['ap'][pv]
-    new_dados_1['ap'][pv] = cpy
-
- 
-    cpy = new_dados_2['ap'][pv] 
-    new_dados_2['ap'][pv+1] = new_dados_2['ap'][pv]
-    new_dados_2['ap'][pv] = cpy
-
-    f_1 = float(f(dados))
-    f_2 = float(f(new_dados_1))
-    f_3 = float(f(new_dados_2))
-
-    if f_1 > f_2 and f_1 > f_3:
-        return dados
-    elif f_2 > f_1 and f_2> f_3:
-        return new_dados_1
-    else:
-        return new_dados_2
-
-    
 #k_max Número de estruturas de vizinhaças definidas
 #max_int numero maximo de tentativas de novos valores
-def BVNS(dados, f, k_max, max_int = 5000, plot = False):
+def VNS(dados, w, k_max, max_int = 5000, plot = False):
     nfe = 0
     x_save = []
     y_save = []
-    
-    # Solução inicial
-    dados = initialSol(copy.copy(dados))
-
+    start = time.time()
     #x_save.append(x)
-    y = f(dados)
+    y = pw(dados, w)
     y_save.append(y)
-    
+    end = time.time()
+    _time_exec = (end - start)/60 
+    time_total = _time_exec
     while(nfe<max_int):
-        print('Interação: {}'.format(nfe))
-        print('Valor f(x): {}'.format(y))
+        if nfe % 10 == 0:
+            print('Interação: {}'.format(nfe))
+            print('Valor f(x): {}'.format(y))
+            print('tempo execução interação: {:.4f} min.'.format(_time_exec))
+        sys.stdout.flush()
         if plot:
             plot_value(dados)
-
+        start = time.time()
         k = 1
         while(k<=k_max):
             # Gera uma solução na k-esima vizinhança de x
             dados_line = shake(copy.copy(dados),k) #shaking
-            dados_line_line = bestImprovement(copy.copy(dados_line), f)
             #update x
-            dados, k = neighborhoodChange(copy.copy(dados), copy.copy(dados_line_line), k, f)
+            dados, k, y = neighborhoodChange(copy.copy(dados), copy.copy(dados_line), k, w)
             #save 
             #x_save.append(x)
-            y = f(dados)
             y_save.append(y)
-        
+        end = time.time()
+        _time_exec = (end - start)/60
+        time_total += _time_exec
         nfe +=1
+    print('Interação: {}'.format(nfe))
+    print('Valor f(x): {}'.format(y))
+    print('tempo execução interação: {:.4f} min.'.format(_time_exec))
 
     dados_sol = dados
 
-    return dados_sol, y_save
+    return dados_sol, y_save, time_total
 
+def pw(dados,w):
+    fval=np.array([[f1(dados)], [f2(dados)]])
+    return np.matmul(w,fval)
+
+def problemaPw(dados, n_sol, k_max, max_VNS_it):
+    dados_init = initialSol(copy.copy(dados))
+    fval = np.zeros((n_sol, 2))
+    
+    for i in range(0,n_sol):
+        print('\nExecução {}\n'.format(i+1))
+        w = np.random.rand(1,2)
+        w = w/(w.sum())
+        print('W  = {}'.format(w))
+        dados_res, y, time_total = VNS(copy.copy(dados_init), w, k_max, max_VNS_it, plot = False)
+        fval[i,0]=f1(dados_res)
+        fval[i,1]=f2(dados_res)
+        dados_res['y'] = y
+        dados_res['fval'] = fval
+        print('tempo total da execução {} horas\n'.format(time_total/60))
+        with open('dataframe_'+str(i+1)+'.plk', 'wb') as handle:
+            pickle.dump(dados_res, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    return fval, dados_res, y
 
 if __name__ == "__main__":
     
-    path_file = 'clientes.csv'
+    if len(sys.argv) > 2:
+        path_file = sys.argv[1]
+        n_sol = int(sys.argv[2])
+        k_max = int(sys.argv[3])
+        max_int_vns = int(sys.argv[4])
+        v_grid = int(sys.argv[5])
+    else:
+        path_file = 'clientes.csv'
+        n_sol = 10
+        k_max = 4
+        max_int_vns = 100
+        v_grid = 20
+    
+    print('File: {}'.format(path_file))
+    print('n_sol: {}'.format(n_sol))
+    print('k_max: {}'.format(k_max))
+    print('max interações: {}'.format(max_int_vns))
+    print('Grid {}x{}'.format(v_grid,v_grid))
+
     df = pd.read_csv(path_file)
     value = df.values
     #Inicializa variáveis
@@ -399,7 +401,7 @@ if __name__ == "__main__":
     sizex = (0,800)
     sizey = (0,800)
     #5x5
-    grid = (20,20)
+    grid = (v_grid,v_grid)
     n_P = int((sizex[1]*sizey[1])/ (grid[0]*grid[1]))
     C = value[:,:2] #conjunto de clientes (x,y)
     cc = value[:,2:] #consumo do cliente i
@@ -431,9 +433,23 @@ if __name__ == "__main__":
     }
 
     #Otimizando
-    sol, y = BVNS(x, f2, k_max = 4, max_int = 20, plot = False)
+    fval, dados, y = problemaPw(x, n_sol = n_sol, k_max = k_max, max_VNS_it = max_int_vns)
     #plot solution
-    plot_value(sol, y)
+    #plot_value(dados, y)
+    dados['y'] = y
+    dados['fval'] = fval
+    plt.plot(fval[:,0], fval[:,1])
+    plt.savefig('result/result.png')
+    
     #print solution
-    print('Resultado:')
-    print('Numero de Pontos de acesso: {}'.format(np.sum(sol['ap'])))
+    print('Final da execução!!')
+    #print('Numero de Pontos de acesso: {}'.format(np.sum(sol['ap'])))
+
+    #with open('dict_result.csv', 'w') as csv_file:  
+    #    writer = csv.writer(csv_file)
+    #    for key, value in dados.items():
+    #        writer.writerow([key, value])
+
+    #with open('dict.csv') as csv_file:
+    #    reader = csv.reader(csv_file)
+    #    mydict = dict(reader)
