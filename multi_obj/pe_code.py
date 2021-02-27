@@ -547,13 +547,14 @@ if __name__ == "__main__":
         max_int_vns = 5
         v_grid = 80
         n_plot = 2
-        mainf = 'f2'
+        mainf = 'f1'
     
     print('File: {}'.format(path_file))
     print('n_sol: {}'.format(n_sol))
     print('k_max: {}'.format(k_max))
     print('max interações: {}'.format(max_int_vns))
     print('Grid {}x{}'.format(v_grid,v_grid))
+    print('Função Principal: {}'.format(mainf))
 
     df = pd.read_csv(path_file)
     value = df.values
