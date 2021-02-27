@@ -8,7 +8,7 @@ Exemplo para rodar o código:\
 \
 Python mono_obj/bvns.py clientes.csv 1 4 100 80 10
 
-- Parametro     : significado
+- Parametro     : significado\
 clientes.csv    : (string) diretório do arquivo com detalhes dos clientes;\
 1               : (int) parametro não utilizado nessa versão;\
 4               : (int) k_max, parametro do método bvns;\
@@ -24,7 +24,7 @@ Exemplo para rodar o código PW:\
 \
 Python multi_obj/pw_code.py clientes.csv 10 4 100 80 10
 
-- Parametro     : significado
+- Parametro     : significado\
 clientes.csv    : (string) diretório do arquivo com detalhes dos clientes;\
 10              : (int) parametro para definir quantidade de soluções calculadas com w diferentes;\
 4               : (int) k_max, parametro do método bvns;\
@@ -37,7 +37,7 @@ Exemplo para rodar o código PE:\
 \
 Python multi_obj/pe_code.py clientes.csv 10 4 100 80 10 f1
 
-- Parametro: significado
+- Parametro: significado\
 clientes.csv    : (string) diretório do arquivo com detalhes dos clientes;\
 10              : (int) parametro para definir quantidade de soluções calculadas com w diferentes;\
 4               : (int) k_max, parametro do método bvns;\
