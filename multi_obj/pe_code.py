@@ -595,6 +595,6 @@ if __name__ == "__main__":
     }
 
     #Otimizando
-    problemaPe(x, mainf, n_sol = n_sol, k_max = k_max, max_VNS_it = max_int_vns, plot = bool(n_plot), dir_save='../output/pe/'+mainf)
+    problemaPe(x, mainf, n_sol = n_sol, k_max = k_max, max_VNS_it = max_int_vns, plot = bool(n_plot), dir_save='output/pe/'+mainf)
 
     print('\n\n=====================Finish Execution=================\n\n')
