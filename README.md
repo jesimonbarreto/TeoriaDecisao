@@ -8,12 +8,13 @@ Implementação do PW e do PE a partir do BVNS
 ##### Decisão da melhor solução
  - [Adicionar]
 
- ###### Detalhes da saída
+ ##### Detalhes da saída
 
 - A saídas dos métodos são direcionados para pasta output/[nome_metodo]/file_save
 - Estrutura da saída (dict.pickle):
-- Key : significado
 
+Key : significado\
+\
 'cc': consumo do cliente i;\
 'ap': vetor binario para indicar se a PA é usada;\
 'acp': matrix binaria (clientesxPA) que indica se a PA atende ao cliente;\
