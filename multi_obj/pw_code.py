@@ -555,6 +555,6 @@ if __name__ == "__main__":
     }
 
     #Otimizando
-    problemaPw(x, n_sol = n_sol, k_max = k_max, max_VNS_it = max_int_vns, plot = bool(n_plot), dir_save='../output/pw/')
+    problemaPw(x, n_sol = n_sol, k_max = k_max, max_VNS_it = max_int_vns, plot = bool(n_plot), dir_save='../output/pw')
 
     print('=====================Finish Execution=================\n\n')

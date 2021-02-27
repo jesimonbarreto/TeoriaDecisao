@@ -523,7 +523,7 @@ if __name__ == "__main__":
     }
 
     #Otimizando
-    sol, log = BVNS(x, f1, k_max = k_max, max_int = max_int_vns, plot = bool(n_plot), n_plot=n_plot, dir_save='../output/vns/')
+    sol, log = BVNS(x, f1, k_max = k_max, max_int = max_int_vns, plot = bool(n_plot), n_plot=n_plot, dir_save='../output/vns')
     
     #print solution
     print('[Resultado] VNS:')
