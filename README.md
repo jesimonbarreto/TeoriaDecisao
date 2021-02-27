@@ -10,7 +10,8 @@ Implementação do PW e do PE a partir do BVNS
 
  ##### Detalhes da saída
 
-- A saídas dos métodos são direcionados para pasta output/[nome_metodo]/file_save
+- Os arquivos de solução dos métodos são direcionados para pasta output/[nome_metodo]/file_save
+- Os plots são direcionados para output/[nome_metodo]/info
 - Estrutura da saída (dict.pickle):
 
 Key : significado\
