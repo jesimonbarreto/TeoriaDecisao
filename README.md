@@ -14,7 +14,7 @@ clientes.csv    : (string) diretório do arquivo com detalhes dos clientes;\
 4               : (int) k_max, parametro do método bvns;\
 100             : (int) valor máximo de interações;\
 80              : (int) tamanho do grid usado para os pontos de acesso (distancia entre os pontos de acesso);\
-10              : (int) intervalo de interações para salvar (solução e plot)
+10              : (int) intervalo de interações para salvar (solução e plot) - 0 para não salvar.
 
 ### Solução do problema bi-objetivo
 
@@ -30,7 +30,7 @@ clientes.csv    : (string) diretório do arquivo com detalhes dos clientes;\
 4               : (int) k_max, parametro do método bvns;\
 100             : (int) valor máximo de interações;\
 80              : (int) tamanho do grid usado para os pontos de acesso (distancia entre os pontos de acesso);\
-10              : (int) intervalo de interações para salvar (solução e plot)
+10              : (int) intervalo de interações para salvar (solução e plot) - 0 para não salvar.
 
 
 Exemplo para rodar o código PE:\
@@ -43,7 +43,7 @@ clientes.csv    : (string) diretório do arquivo com detalhes dos clientes;\
 4               : (int) k_max, parametro do método bvns;\
 100             : (int) valor máximo de interações;\
 80              : (int) tamanho do grid usado para os pontos de acesso (distancia entre os pontos de acesso);\
-10              : (int) intervalo de interações para salvar (solução e plot);\
+10              : (int) intervalo de interações para salvar (solução e plot) - 0 para não salvar;\
 f1              : (string) indica qual função será utilizada como principal, as outras serão restrições (possibilidades: f1 ou f2)
 
 
