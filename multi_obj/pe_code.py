@@ -546,8 +546,8 @@ if __name__ == "__main__":
         k_max = 4
         max_int_vns = 5
         v_grid = 80
-        n_plot = 2
-        mainf = 'f1'
+        n_plot = 4
+        mainf = 'f2'
     
     print('File: {}'.format(path_file))
     print('n_sol: {}'.format(n_sol))
