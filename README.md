@@ -1,5 +1,5 @@
 ## Projeto do componente curricular Teoria da Decisão da UFMG - Escola de Engenharia - Engenharia de Sistemas
-### Problema de posicionamento de pontos de acesso de internet sem fio para atender clientes
+### Problema de posicionamento de pontos de acesso de internet sem fio
 
 ### Solução do problema mono-objetivo
 
