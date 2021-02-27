@@ -1,8 +1,8 @@
 ## Projeto do componente curricular Teoria da Decisão da UFMG - Escola de Engenharia - Engenharia de Sistemas
-#### Problema de otimização de localização de pontos de acesso de internet sem fio para atender clientes
+#### Problema de posicionamento de pontos de acesso de internet sem fio para atender clientes
 
 #### Solução do problema mono-objetivo
-\
+
 Implementação com BVNS (bvns.py)\
 Exemplo para rodar o código:\
 \
@@ -15,9 +15,9 @@ parametro: significado\
 100             : (int) valor máximo de interações;\
 80              : (int) tamanho do grid usado para os pontos de acesso (distancia entre os pontos de acesso);\
 10              : (int) intervalo de interações para salvar (solução e plot) de soluções parciais\
-\
+
 #### Solução do problema bi-objetivo
-\
+
 Implementação do PW (pw_code.py) e do PE (pe_code.py) a partir do BVNS\
 \
 Exemplo para rodar o código PW:\
@@ -31,7 +31,7 @@ parametro: significado\
 100             : (int) valor máximo de interações;\
 80              : (int) tamanho do grid usado para os pontos de acesso (distancia entre os pontos de acesso);\
 10              : (int) intervalo de interações para salvar (solução e plot) de soluções parciais\
-\
+
 Exemplo para rodar o código PE:\
 \
 Python multi_obj/pe_code.py ./clientes.csv 10 4 100 80 10 f1\
@@ -44,7 +44,7 @@ parametro: significado\
 80              : (int) tamanho do grid usado para os pontos de acesso (distancia entre os pontos de acesso);\
 10              : (int) intervalo de interações para salvar (solução e plot) de soluções parciais;\
 f1              : (string) indica qual função será utilizada como principal, as outras serão restrições (possibilidades: f1 ou f2)\
-\
+
 
 #### Decisão da melhor solução
  - [Adicionar]
