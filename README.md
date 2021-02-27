@@ -6,7 +6,7 @@
 Implementação com BVNS (bvns.py)\
 Exemplo para rodar o código:\
 \
-Python mono_obj/bvns.py clientes.csv 1 4 100 80 10
+python mono_obj/bvns.py clientes.csv 1 4 100 80 10
 
 - Parametro     : significado\
 clientes.csv    : (string) diretório do arquivo com detalhes dos clientes;\
@@ -22,7 +22,7 @@ Implementação do PW (pw_code.py) e do PE (pe_code.py) a partir do BVNS\
 \
 Exemplo para rodar o código PW:\
 \
-Python multi_obj/pw_code.py clientes.csv 10 4 100 80 10
+python multi_obj/pw_code.py clientes.csv 10 4 100 80 10
 
 - Parametro     : significado\
 clientes.csv    : (string) diretório do arquivo com detalhes dos clientes;\
@@ -35,7 +35,7 @@ clientes.csv    : (string) diretório do arquivo com detalhes dos clientes;\
 
 Exemplo para rodar o código PE:\
 \
-Python multi_obj/pe_code.py clientes.csv 10 4 100 80 10 f1
+python multi_obj/pe_code.py clientes.csv 10 4 100 80 10 f1
 
 - Parametro: significado\
 clientes.csv    : (string) diretório do arquivo com detalhes dos clientes;\
