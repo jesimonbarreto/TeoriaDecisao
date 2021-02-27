@@ -56,7 +56,7 @@ f1              : (string) indica qual função será utilizada como principal, 
 - Os plots são direcionados para output/[nome_metodo]/info
 - Estrutura da saída (dict.pickle):
 
-- Key   : significado\n
+- Key   : significado\
 'cc'    : consumo do cliente i;\
 'ap'    : vetor binario para indicar se a PA é usada;\
 'acp'   : matrix binaria (clientesxPA) que indica se a PA atende ao cliente;\
