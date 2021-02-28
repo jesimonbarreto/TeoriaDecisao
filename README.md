@@ -1,6 +1,11 @@
 ## Projeto do componente curricular Teoria da Decisão da UFMG - Escola de Engenharia - Engenharia de Sistemas
 ### Problema de posicionamento de pontos de acesso de internet sem fio
 
+![alt text](https://www.dropbox.com/s/43s1nnd9swoey0b/iterationss.gif?dl=0)
+
+
+
+
 ### Solução do problema mono-objetivo
 
 Implementação com BVNS (bvns.py)\
