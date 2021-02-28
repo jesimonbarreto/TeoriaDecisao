@@ -524,7 +524,7 @@ def problemaPe(dados, main, n_sol, k_max, max_VNS_it, plot = True, dir_save = '.
                         'sizey':dados_res['sizey'],
                         'fval': fval}
         
-            with open(dir_save+'/file_save/pw_'+str(i+1)+'.pkl', 'wb') as handle:
+            with open(dir_save+'/file_save/pe_'+main+'_'+str(i+1)+'.pkl', 'wb') as handle:
                 pickle.dump(save_dic, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
