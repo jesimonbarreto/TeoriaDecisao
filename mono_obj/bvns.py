@@ -537,6 +537,6 @@ if __name__ == "__main__":
     #print(sol['acp'])
     
     #plot solution
-    plot_infos(sol, log, dir_='/output/vns/info/')
+    plot_infos(sol, log, dir_='output/vns/info/')
     
     
