@@ -106,7 +106,7 @@ def rest4(dados):
     #    if (i > 0):
     #        penal += i
 
-    return penal
+    return penal * 1000
 
 # garante que cada cliente estará conectado a no maximo 1 PA
 def rest5(dados):
@@ -117,7 +117,7 @@ def rest5(dados):
     for id_c,c in enumerate(C):
         penal += max(0, np.sum(acp[id_c,:]) - 1)
     
-    return penal
+    return penal *1000
 
 # garante que nao exceda o numero de pontos de acesso
 def rest6(dados):

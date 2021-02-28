@@ -103,7 +103,7 @@ def rest4(dados):
         penal += max(0, np.sum(acp[:,id_p]*cc) - cp)
 
 
-    return penal
+    return penal * 1000
 
 # garante que cada cliente estará conectado a no maximo 1 PA
 def rest5(dados):
@@ -114,7 +114,7 @@ def rest5(dados):
     for id_c,c in enumerate(C):
         penal += max(0, np.sum(acp[id_c,:]) - 1)
     
-    return penal
+    return penal * 1000
 
 # garante que nao exceda o numero de pontos de acesso
 def rest6(dados):
@@ -501,7 +501,7 @@ if __name__ == "__main__":
         k_max = int(sys.argv[3])
         max_int_vns = int(sys.argv[4])
         v_grid = int(sys.argv[5])
-        n_plot = int(sys.argv[5])
+        n_plot = int(sys.argv[6])
     else:
         path_file = '../clientes_debug.csv'
         n_sol = 10
