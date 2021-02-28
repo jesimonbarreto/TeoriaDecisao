@@ -1,7 +1,7 @@
 ## Projeto do componente curricular Teoria da Decisão da UFMG - Escola de Engenharia - Engenharia de Sistemas
 ### Problema de posicionamento de pontos de acesso de internet sem fio
 
-![Execução](https://github.com/jesimonbarreto/TeoriaDecisao/blob/main/output/interactionss.gif?raw=true)
+![Execução](https://github.com/jesimonbarreto/TeoriaDecisao/blob/main/iterationss.gif?raw=true)
 
 
 
